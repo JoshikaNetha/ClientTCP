@@ -3,69 +3,126 @@ import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import TCPLinkClient 1.0
 Window {
-    width: 400
+    width: 640
     height: 480
     visible: true
     title: qsTr("Client")
+    color:              "#E8E8E8"
 
     TCPLinkClient{
         id: linkManager
     }
 
     Rectangle{
-        id:  root
-        width: parent.width * 0.9
-        height: parent.height * 0.9
-        anchors.centerIn:  parent
-        Row{
-
-            Rectangle{
-                height:root.height * 0.9
-                width: root.width / 2
-                border.color: "black"
-                Column{
-                    Repeater{
-                        model: linkManager.serverMessages
-                        delegate:Text{
-                            text: modelData
-                        }
-                    }
-                }
+        id:                  root
+        width:               parent.width * 0.9
+        height:              parent.height * 0.9
+        anchors.centerIn:    parent
+        color:              "transparent"
+        Rectangle{
+            height:                     root.height * 0.9
+            width:                      root.width / 2
+            anchors.left:               parent.left
+            color:                      "transparent"
+            Label{
+                id:                        titleServer
+                anchors.horizontalCenter:  parent.horizontalCenter
+                text:                      "Server"
             }
-            Rectangle{
-                id:    cMsg
-                height:root.height * 0.9
-                width: root.width / 2
-                border.color: "black"
+
+            Flickable{
+                anchors.top:            titleServer.bottom
+                height:                 parent.height * 0.95
+                width:                  parent.width
+                contentHeight:          sMsgCol.height
+                clip:                   true
                 Column{
+                    id:                     sMsgCol
+                    spacing:                height * 0.05
                     Repeater{
-                        model: linkManager.clientMessages
-                        delegate: Rectangle{
-                            height: msgText.height * 1.2
-                            width:  cMsg.width * 0.9
-                            border.color: "green"
+                        model:              linkManager.serverMessages
+                        delegate:
+                            Rectangle{
+                            height:          sMsg.height * 1.6
+                            width:              root.width * 0.45
+                            border.color:       "black"
+                            radius:              height/15
                             Text{
-                                id:  msgText
-                                text: modelData
-                                width: parent.width
-                                wrapMode: Text.wrapMode
+                                id:                sMsg
+                                text:              modelData
+                                anchors.centerIn:  parent
+                                width:             parent.width * 0.9
+                                wrapMode:          Text.WordWrap
                             }
                         }
                     }
                 }
             }
-
         }
+        Rectangle{
+            height:                     root.height * 0.9
+            width:                      root.width / 2
+            color:                      "transparent"
+            anchors.right:              parent.right
+            Label{
+                id:                        titleClient
+                anchors.horizontalCenter:  parent.horizontalCenter
+                text:                      "Client"
+            }
+            Flickable{
+                anchors.top:            titleClient.bottom
+                height:                 parent.height * 0.95
+                width:                  parent.width
+                contentHeight:          cMsgCol.height
+                clip:                   true
+                Column{
+                    id:                         cMsgCol
+                    spacing:                    height * 0.05
+                    anchors.right:              parent.right
+                    Repeater{
+                        id:      cMessagesRepeater
+                        model:   linkManager.clientMessages
+                        delegate:
+                            Rectangle{
+                            height:          cMsg.height * 1.6
+                            width:           root.width * 0.45
+                            border.color:    "black"
+                            radius:              height/15
+                            Text{
+                                id:   cMsg
+                                text: modelData
+                                anchors.centerIn:  parent
+                                width:             parent.width
+                                wrapMode:          Text.WordWrap
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         Row{
             anchors.bottom:  parent.bottom
+            spacing:          parent.width * 0.05
             TextField{
                 id:    messageTF
                 placeholderText: "Enter Message"
             }
-            Button{
-                text: "Send"
-                onClicked:{
-                    linkManager.sendNotification(messageTF.text)
+            Rectangle{
+                height:   root.height * 0.09
+                width:    root.width  * 0.1
+                radius:   height/ 8
+                border.color:  "#BEBEBE"
+                Text{
+                    anchors.centerIn:   parent
+                    text:     "Send"
+                }
+                MouseArea{
+                    anchors.fill:  parent
+                    onClicked: {
+                        linkManager.sendNotification(messageTF.text)
+                        messageTF.clear()
+                    }
                 }
             }
         }
